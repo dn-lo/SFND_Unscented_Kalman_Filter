@@ -8,17 +8,41 @@ using Eigen::VectorXd;
  * Initializes Unscented Kalman filter
  */
 UKF::UKF() {
+  // ukf is not initialized until first call of ProcessMeasurement
+  is_initialized_ = false;
+
   // if this is false, laser measurements will be ignored (except during init)
   use_laser_ = true;
 
   // if this is false, radar measurements will be ignored (except during init)
   use_radar_ = true;
 
+  // State dimension
+  n_x_ = 5;
+
+  // Augmented state dimension
+  n_aug_ = 7;
+
+  // Sigma point spreading parameter
+  lambda_ = 3 - n_aug_;
+
+  // Weights of sigma points
+  weights_ = VectorXd(2*n_aug_ + 1);
+  weights_.fill(0.5 / (lambda_ + n_aug_));
+  weights_(0) = lambda_ / (lambda_ + n_aug_);
+
   // initial state vector
-  x_ = VectorXd(5);
+  x_ = VectorXd(n_x_);
+  x_ << 0, 0, 0, 0, 0;
 
   // initial covariance matrix
-  P_ = MatrixXd(5, 5);
+  P_ = MatrixXd::Identity(n_x_, n_x_);
+
+  // predicted sigma points matrix
+  Xsig_pred_ = MatrixXd(n_x_, 2*n_aug_ + 1);
+
+  // time when the state is true, in us
+  time_us_ = 0;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
   std_a_ = 30;
