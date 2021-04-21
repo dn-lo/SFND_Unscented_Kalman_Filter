@@ -33,13 +33,22 @@ UKF::UKF() {
 
   // initial state vector
   x_ = VectorXd(n_x_);
-  x_ << 0, 0, 0, 0, 0;
+  x_ << 0, 0, 1, 0, 0;
 
   // initial covariance matrix
   P_ = MatrixXd::Identity(n_x_, n_x_);
 
   // predicted sigma points matrix
   Xsig_pred_ = MatrixXd(n_x_, 2*n_aug_ + 1);
+
+  // Initialize sigma points (as P is the identity matrix, its square root is itself)
+  Xsig_pred_.col(0) = x_;
+  // set sigma points to the right and left of mean
+  for (unsigned int i=0; i<n_x_; i++)
+  {
+      Xsig_pred_.col(i+1)       = x_ + sqrt(lambda_ + n_aug_) * P_.col(i); // right
+      Xsig_pred_.col(i+n_aug_+1) = x_ - sqrt(lambda_ + n_aug_) * P_.col(i); // left
+  }
 
   // time when the state is true, in us
   time_us_ = 0;
@@ -95,12 +104,12 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     {
         case MeasurementPackage::SensorType::LASER:
         {
-            UpdateLidar(meas_package);
+            UpdateLidar(meas_package.raw_measurements_);
             break;
         }
         case MeasurementPackage::SensorType::RADAR:
         {
-            UpdateRadar(meas_package);
+            UpdateRadar(meas_package.raw_measurements_);
             break;
         }
         default:
@@ -216,7 +225,7 @@ void UKF::Prediction(double delta_t) {
   }
 }
 
-void UKF::UpdateLidar(MeasurementPackage meas_package) {
+void UKF::UpdateLidar(Eigen::VectorXd z) {
   /**
    * TODO: Complete this function! Use lidar data to update the belief 
    * about the object's position. Modify the state vector, x_, and 
@@ -226,11 +235,12 @@ void UKF::UpdateLidar(MeasurementPackage meas_package) {
 
 }
 
-void UKF::UpdateRadar(MeasurementPackage meas_package) {
+void UKF::UpdateRadar(Eigen::VectorXd z) {
   /**
    * TODO: Complete this function! Use radar data to update the belief 
    * about the object's position. Modify the state vector, x_, and 
    * covariance, P_.
    * You can also calculate the radar NIS, if desired.
    */
+
 }

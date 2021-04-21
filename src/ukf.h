@@ -31,15 +31,15 @@ class UKF {
 
   /**
    * Updates the state and the state covariance matrix using a laser measurement
-   * @param meas_package The measurement at k+1
+   * @param z The raw measurement at k+1
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  void UpdateLidar(Eigen::VectorXd z);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
-   * @param meas_package The measurement at k+1
+   * @param z The raw measurement at k+1
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+  void UpdateRadar(Eigen::VectorXd z);
 
 
   // initially set to false, set to true in first call of ProcessMeasurement
