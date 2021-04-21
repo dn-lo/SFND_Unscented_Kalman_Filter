@@ -87,6 +87,28 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
    * TODO: Complete this function! Make sure you switch between lidar and radar
    * measurements.
    */
+  // Update true state timestamp
+  time_us_ = meas_package.timestamp_;
+
+  // Update state according to sensor type
+  switch (meas_package.sensor_type_)
+    {
+        case MeasurementPackage::SensorType::LASER:
+        {
+            UpdateLidar(meas_package);
+            break;
+        }
+        case MeasurementPackage::SensorType::RADAR:
+        {
+            UpdateRadar(meas_package);
+            break;
+        }
+        default:
+        {
+          throw std::runtime_error("Unknown sensor type");
+            // is likely to be an error
+        }
+    }; 
 }
 
 void UKF::Prediction(double delta_t) {
@@ -95,6 +117,7 @@ void UKF::Prediction(double delta_t) {
    * Modify the state vector, x_. Predict sigma points, the state, 
    * and the state covariance matrix.
    */
+
 }
 
 void UKF::UpdateLidar(MeasurementPackage meas_package) {
