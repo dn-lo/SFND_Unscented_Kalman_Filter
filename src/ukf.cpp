@@ -36,7 +36,10 @@ UKF::UKF() {
   x_ = VectorXd(n_x_);
 
   // initial covariance matrix
-  P_ = MatrixXd::Identity(n_x_, n_x_)*1000;
+  P_ = MatrixXd::Identity(n_x_, n_x_)*50;
+  P_(2,2) = 100;
+  P_(3,3) = 100;
+  P_(4,4) = 500;
 
   // predicted sigma points matrix
   Xsig_pred_ = MatrixXd(n_x_, 2*n_aug_ + 1);
@@ -45,10 +48,10 @@ UKF::UKF() {
   time_us_ = 0;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 5;
+  std_a_ = 4;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 5;
+  std_yawdd_ = 10;
   
   /**
    * DO NOT MODIFY measurement noise values below.
