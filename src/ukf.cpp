@@ -36,10 +36,12 @@ UKF::UKF() {
   x_ = VectorXd(n_x_);
 
   // initial covariance matrix
-  P_ = MatrixXd::Identity(n_x_, n_x_)*50;
-  P_(2,2) = 100;
-  P_(3,3) = 100;
-  P_(4,4) = 500;
+  P_ = MatrixXd::Identity(n_x_, n_x_);
+  P_(0,0) = 0.02;
+  P_(1,1) = 0.02;
+  P_(2,2) = 0.09;
+  P_(3,3) = 0.009;
+  P_(4,4) = 0.2;
 
   // predicted sigma points matrix
   Xsig_pred_ = MatrixXd(n_x_, 2*n_aug_ + 1);
@@ -51,7 +53,7 @@ UKF::UKF() {
   std_a_ = 4;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 10;
+  std_yawdd_ = 12;
   
   /**
    * DO NOT MODIFY measurement noise values below.
@@ -294,7 +296,7 @@ void UKF::UpdateLidar(Eigen::VectorXd z) {
 
   // compute NIS
   double eps = y.transpose() * Si * y;
-  std::cout << "NIS lidar = " << eps << std::endl; 
+  std::cout << "NIS_lidar " << eps << std::endl; 
 }
 
 void UKF::UpdateRadar(Eigen::VectorXd z) {
@@ -397,5 +399,5 @@ void UKF::UpdateRadar(Eigen::VectorXd z) {
 
   // compute NIS
   double eps = y.transpose() * Si * y;
-  std::cout << "NIS radar = " << eps << std::endl; 
+  std::cout << "NIS_radar " << eps << std::endl; 
 }
