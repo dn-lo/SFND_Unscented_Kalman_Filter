@@ -37,8 +37,8 @@ UKF::UKF() {
 
   // initial covariance matrix
   P_ = MatrixXd::Identity(n_x_, n_x_);
-  P_(0,0) = 0.02;
-  P_(1,1) = 0.02;
+  P_(0,0) = 0.001;
+  P_(1,1) = 0.01;
   P_(2,2) = 0.09;
   P_(3,3) = 0.009;
   P_(4,4) = 0.2;
