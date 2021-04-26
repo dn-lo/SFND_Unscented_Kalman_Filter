@@ -101,28 +101,28 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
     is_initialized_ = true;
     x_.fill(0.);
     switch (meas_package.sensor_type_)
+    {
+      case MeasurementPackage::SensorType::LASER:
       {
-          case MeasurementPackage::SensorType::LASER:
-          {
-              x_(0) = meas_package.raw_measurements_[0];
-              x_(1) = meas_package.raw_measurements_[1];
-              return;
-          }
-          case MeasurementPackage::SensorType::RADAR:
-          {
-              auto ro = static_cast<float>(meas_package.raw_measurements_(0));     
-              auto phi = static_cast<float>(meas_package.raw_measurements_(1));
-              x_(0) = ro * cos(phi);
-              x_(1) = ro * sin(phi);
-              x_(3) = phi;
-              return;
-          }
-          default:
-          {
-            throw std::runtime_error("Unknown sensor type");
-              // is likely to be an error
-          }
-      };
+        x_(0) = meas_package.raw_measurements_[0];
+        x_(1) = meas_package.raw_measurements_[1];
+        return;
+      }
+      case MeasurementPackage::SensorType::RADAR:
+      {
+        auto ro = static_cast<float>(meas_package.raw_measurements_(0));     
+        auto phi = static_cast<float>(meas_package.raw_measurements_(1));
+        x_(0) = ro * cos(phi);
+        x_(1) = ro * sin(phi);
+        x_(3) = phi;
+        return;
+      }
+      default:
+      {
+        throw std::runtime_error("Unknown sensor type");
+          // is likely to be an error
+      }
+    };
   }
 
   // Predict state
@@ -130,23 +130,29 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
   // Update state according to sensor type
   switch (meas_package.sensor_type_)
+  {
+    case MeasurementPackage::SensorType::LASER:
     {
-        case MeasurementPackage::SensorType::LASER:
+        if (use_laser_) 
         {
-            UpdateLidar(meas_package.raw_measurements_);
-            break;
+          UpdateLidar(meas_package.raw_measurements_);
         }
-        case MeasurementPackage::SensorType::RADAR:
+        break;
+    }
+    case MeasurementPackage::SensorType::RADAR:
+    {
+        if (use_radar_)
         {
-            UpdateRadar(meas_package.raw_measurements_);
-            break;
+          UpdateRadar(meas_package.raw_measurements_);
         }
-        default:
-        {
-          throw std::runtime_error("Unknown sensor type");
-            // is likely to be an error
-        }
-    }; 
+        break;
+    }
+    default:
+    {
+      throw std::runtime_error("Unknown sensor type");
+        // is likely to be an error
+    }
+  }; 
 }
 
 void UKF::Prediction(double delta_t) {
@@ -183,8 +189,8 @@ void UKF::Prediction(double delta_t) {
   // set sigma points to the right and left of mean
   for (unsigned int i=0; i<n_aug_; i++)
   {
-      Xsig_aug.col(i+1)       = x_aug + sqrt(lambda_ + n_aug_) * A_aug.col(i); // right
-      Xsig_aug.col(i+n_aug_+1) = x_aug - sqrt(lambda_ + n_aug_) * A_aug.col(i); // left
+    Xsig_aug.col(i+1)       = x_aug + sqrt(lambda_ + n_aug_) * A_aug.col(i); // right
+    Xsig_aug.col(i+n_aug_+1) = x_aug - sqrt(lambda_ + n_aug_) * A_aug.col(i); // left
   }
   
   // predict sigma points
