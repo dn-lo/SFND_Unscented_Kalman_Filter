@@ -286,6 +286,9 @@ void UKF::UpdateLidar(Eigen::VectorXd z) {
   MatrixXd I = MatrixXd::Identity(n_x_, n_x_);
   P_ = (I - K * H) * P_;
 
+  // compute NIS
+  double eps = y.transpose() * Si * y;
+  std::cout << "NIS lidar = " << eps << std::endl; 
 }
 
 void UKF::UpdateRadar(Eigen::VectorXd z) {
@@ -376,10 +379,17 @@ void UKF::UpdateRadar(Eigen::VectorXd z) {
 
   // calculate Kalman gain K;
   MatrixXd K = MatrixXd(n_x_, n_z);
-  K = Tc * S.inverse();
+  MatrixXd Si = S.inverse();
+  K = Tc * Si;
+
+  VectorXd y = z - z_pred;      // Prediction error
+
 
   // update state mean and covariance matrix
-  x_ += K * (z - z_pred);
+  x_ += K * y;
   P_ -= K * S * K.transpose();
 
+  // compute NIS
+  double eps = y.transpose() * Si * y;
+  std::cout << "NIS radar = " << eps << std::endl; 
 }
