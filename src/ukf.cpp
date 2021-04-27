@@ -102,59 +102,51 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   {
     is_initialized_ = true;
     x_.fill(0.);
-    switch (meas_package.sensor_type_)
+    if (meas_package.sensor_type_ == MeasurementPackage::SensorType::LASER)
     {
-      case MeasurementPackage::SensorType::LASER:
-      {
-        x_(0) = meas_package.raw_measurements_[0];
-        x_(1) = meas_package.raw_measurements_[1];
-        return;
-      }
-      case MeasurementPackage::SensorType::RADAR:
-      {
-        auto ro = static_cast<float>(meas_package.raw_measurements_(0));     
-        auto phi = static_cast<float>(meas_package.raw_measurements_(1));
-        x_(0) = ro * cos(phi);
-        x_(1) = ro * sin(phi);
-        x_(3) = phi;
-        return;
-      }
-      default:
-      {
-        throw std::runtime_error("Unknown sensor type");
-          // is likely to be an error
-      }
-    };
+      x_(0) = meas_package.raw_measurements_[0];
+      x_(1) = meas_package.raw_measurements_[1];
+      return;
+    }
+    else if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR)
+    {
+      auto ro = static_cast<float>(meas_package.raw_measurements_(0));     
+      auto phi = static_cast<float>(meas_package.raw_measurements_(1));
+      x_(0) = ro * cos(phi);
+      x_(1) = ro * sin(phi);
+      x_(3) = phi;
+      return;
+    }
+    else
+    {
+      throw std::runtime_error("Unknown sensor type");
+        // is likely to be an error
+    }
   }
 
   // Predict state
   Prediction(dt);
 
   // Update state according to sensor type
-  switch (meas_package.sensor_type_)
+  if (meas_package.sensor_type_ == MeasurementPackage::SensorType::LASER)
   {
-    case MeasurementPackage::SensorType::LASER:
+    if (use_laser_) 
     {
-        if (use_laser_) 
-        {
-          UpdateLidar(meas_package.raw_measurements_);
-        }
-        break;
+      UpdateLidar(meas_package.raw_measurements_);
     }
-    case MeasurementPackage::SensorType::RADAR:
-    {
-        if (use_radar_)
-        {
-          UpdateRadar(meas_package.raw_measurements_);
-        }
-        break;
-    }
-    default:
-    {
-      throw std::runtime_error("Unknown sensor type");
-        // is likely to be an error
-    }
-  }; 
+  }
+  else if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR)
+  {
+      if (use_radar_)
+      {
+        UpdateRadar(meas_package.raw_measurements_);
+      }
+  }
+  else
+  {
+    throw std::runtime_error("Unknown sensor type");
+      // is likely to be an error
+  } 
 }
 
 void UKF::Prediction(double delta_t) {
