@@ -50,10 +50,10 @@ UKF::UKF() {
   time_us_ = 0;
 
   // Process noise standard deviation longitudinal acceleration in m/s^2
-  std_a_ = 4;
+  std_a_ = 2;
 
   // Process noise standard deviation yaw acceleration in rad/s^2
-  std_yawdd_ = 12;
+  std_yawdd_ = 6;
   
   /**
    * DO NOT MODIFY measurement noise values below.
@@ -143,10 +143,10 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   }
   else if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR)
   {
-      if (use_radar_)
-      {
-        UpdateRadar(meas_package.raw_measurements_);
-      }
+    if (use_radar_)
+    {
+      UpdateRadar(meas_package.raw_measurements_);
+    }
   }
   else
   {
@@ -172,7 +172,7 @@ void UKF::Prediction(double delta_t) {
 
   // create augmented mean state
   x_aug.head(5) =  x_;
-  x_aug.tail(2).fill(0.);
+  x_aug.tail(2).fill(0.0);
 
   // create augmented covariance matrix
   P_aug.fill(0.0);
@@ -219,7 +219,7 @@ void UKF::Prediction(double delta_t) {
     {
       // avoid division by zero
       x_n = x + v * cos(psi) * delta_t;
-      y_n = x + v * sin(psi) * delta_t;
+      y_n = y + v * sin(psi) * delta_t;
     }
     // increment remaining state variables
     v_n    = v;
