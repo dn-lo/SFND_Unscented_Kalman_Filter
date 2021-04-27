@@ -101,20 +101,26 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   if (!is_initialized_)
   {
     is_initialized_ = true;
-    x_.fill(0.);
     if (meas_package.sensor_type_ == MeasurementPackage::SensorType::LASER)
     {
+      x_.fill(0.);
       x_(0) = meas_package.raw_measurements_[0];
       x_(1) = meas_package.raw_measurements_[1];
+      // std::cout << "x = " << x_ << std::endl; 
       return;
     }
     else if (meas_package.sensor_type_ == MeasurementPackage::SensorType::RADAR)
     {
       auto ro = static_cast<float>(meas_package.raw_measurements_(0));     
       auto phi = static_cast<float>(meas_package.raw_measurements_(1));
+      auto ro_dot = static_cast<float>(meas_package.raw_measurements_(2));
+      float vx = ro_dot * cos(phi);
+      float vy = ro_dot * sin(phi);
       x_(0) = ro * cos(phi);
       x_(1) = ro * sin(phi);
+      x_(2) = sqrt(vx * vx + vy * vy);
       x_(3) = phi;
+      x_(4) = 0.;
       return;
     }
     else
